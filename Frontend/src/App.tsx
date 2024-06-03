@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import ListGroupComponent from './components/ListGroupComponent';
+import InvoiceFormComponent from './components/InvoiceFormComponent';
+import './styles/App.css';
+
 
 interface InvoiceData {
   id: number;
@@ -24,12 +27,14 @@ const App: React.FC = () => {
     <div className="App">
       <h1>Invoices</h1>
       <ListGroupComponent invoices={invoices} onSelect={handleSelect} />
-      {selectedInvoice && (
+      {selectedInvoice ? (
         <div>
           <h2>Selected Invoice</h2>
           <p>Client: {selectedInvoice.clientName}</p>
           <p>Amount: ${selectedInvoice.amount.toFixed(2)}</p>
         </div>
+      ) : (
+        <InvoiceFormComponent />
       )}
     </div>
   );
