@@ -1,85 +1,84 @@
 .App {
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  background-color: #f8f9fa;
-}
-
-.invoice-form {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.invoice-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.invoice-logo {
-  flex: 1;
-}
-
-.add-logo {
-  border: 1px dashed #ccc;
-  padding: 20px;
+  font-family: Arial, sans-serif;
   text-align: center;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.add-logo:hover {
-  background-color: #
-
-
-.client-form {
-  max-width: 400px;
-  margin: 20px auto;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.client-form h2 {
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.client-form, .invoice-form, .invoice-list, .list-group {
+  width: 100%;
+  max-width: 600px;
   margin-bottom: 20px;
-  font-size: 1.5em;
-  color: #333;
 }
 
-.client-form div {
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form div {
   margin-bottom: 15px;
 }
 
-.client-form label {
-  display: block;
+form label {
   margin-bottom: 5px;
-  color: #555;
+  font-weight: bold;
 }
 
-.client-form input {
+form input, form select, form button {
+  padding: 8px;
   width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
+  max-width: 300px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
-.client-form button {
-  padding: 10px 20px;
-  background-color: #28a745;
+form button {
+  cursor: pointer;
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.client-form button:hover {
-  background-color: #218838;
+form button:hover {
+  background-color: #0056b3;
+}
+
+.invoice-list .invoice-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: #e9ecef;
+  border-radius: 4px;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background: #e2e6ea;
 }
