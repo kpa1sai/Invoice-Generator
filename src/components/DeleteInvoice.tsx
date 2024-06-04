@@ -10,16 +10,16 @@ const DeleteInvoice: React.FC<DeleteInvoiceProps> = ({ invoiceId, onDelete }) =>
   const handleDelete = async () => {
     try {
       await deleteInvoice(invoiceId);
-      onDelete(invoiceId); // Update UI after successful deletion
+      onDelete(invoiceId); 
     } catch (error) {
       console.error('Error deleting invoice:', error);
-      // Optionally, show an error message to the user
+      
     }
   };
 
   return (
     <div>
-      {/* You can render a confirmation dialog or a simple button for deleting */}
+      {}
       <button onClick={handleDelete}>Delete Invoice</button>
     </div>
   );
