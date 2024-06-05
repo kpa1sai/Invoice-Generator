@@ -37,7 +37,7 @@ To run the Invoice Generator locally, follow these steps:
 
 ## Technologies Used
 
-Frontend: HTML, CSS, JavaScript
+Frontend: HTML, CSS, JavaScript, React
 
 Backend: Django
 
