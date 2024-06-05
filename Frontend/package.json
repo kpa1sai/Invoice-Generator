@@ -1,5 +1,5 @@
 {
-  "name": "psdinvoicegenerator",
+  "name": "invoicegenerator",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
