@@ -3,12 +3,12 @@ from rest_framework import viewsets
 from .models import Supplier, Customer, Address, Invoice, InvoiceItem
 from .serializers import SupplierSerializer, CustomerSerializer, AddressSerializer, InvoiceSerializer, InvoiceItemSerializer
 
-
 from django.http import HttpResponseNotFound, FileResponse
 import io
-from reportlab.pdfgen import canvas
-from .models import Invoice
-
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from .models import Invoice, InvoiceItem
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
@@ -31,11 +31,6 @@ class InvoiceItemViewSet(viewsets.ModelViewSet):
     serializer_class = InvoiceItemSerializer
 
 
-from django.http import HttpResponseNotFound, FileResponse
-import io
-from reportlab.pdfgen import canvas
-from .models import Invoice
-
 def generate_invoice_pdf(request, invoice_id):
     try:
         # Retrieve the invoice object
@@ -46,18 +41,42 @@ def generate_invoice_pdf(request, invoice_id):
     # Create a BytesIO buffer to write PDF content
     buffer = io.BytesIO()
 
-    # Create a PDF document using ReportLab
-    p = canvas.Canvas(buffer)
+    # Define PDF elements
+    elements = []
 
-    # Define PDF content
-    p.drawString(100, 750, "Invoice")
-    p.drawString(100, 730, f"Invoice Number: {invoice.invoice_number}")
-    p.drawString(100, 710, f"Total Price: {invoice.total_price}")
-    # Add more content as needed
+    # Define data for the in    voice
+    data = [
+        ["Invoice Number", invoice.invoice_number],
+        ["Invoice Date", invoice.invoice_date.strftime('%Y-%m-%d')],
+        ["Due Date", invoice.payment_due_date.strftime('%Y-%m-%d')],
+        ["Customer", invoice.customer.customer_name],
+        # Add more data fields as needed
+    ]
 
-    # Save the PDF
-    p.showPage()
-    p.save()
+    # Define style for the table
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+
+    # Create a table and apply the style
+    invoice_table = Table(data)
+    invoice_table.setStyle(style)
+
+
+    # Add the table to the PDF elements
+    elements.append(invoice_table)
+
+    # Create the PDF document with adjusted margins
+    doc = SimpleDocTemplate(buffer, pagesize=letter,leftMargin=50, rightMargin=50, topMargin=50, bottomMargin=50)
+
+    # Build the PDF document
+    doc.build(elements)
 
     # Rewind the buffer to the beginning
     buffer.seek(0)
