@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import "./styles/CreateInvoice.css";
+import SaveDraftInvoice from './SaveDraftInvoice';
 
 function CreateInvoice() {
   const [invoice, setInvoice] = useState({
@@ -28,15 +29,15 @@ function CreateInvoice() {
     setInvoice((prevInvoice) => ({ ...prevInvoice, logo: e.target.files[0] }));
   };
 
-  //   const handleAddItem = () => {
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       items: [
-  //         ...prevInvoice.items,
-  //         { name: "", description: "", quantity: 1, rate: 0 },
-  //       ],
-  //     }));
-  //   };
+    // const handleAddItem = () => {
+    //   setInvoice((prevInvoice) => ({
+    //     ...prevInvoice,
+    //     items: [
+    //       ...prevInvoice.items,
+    //       { name: "", description: "", quantity: 1, rate: 0 },
+    //     ],
+    //   }));
+    // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
