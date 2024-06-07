@@ -189,6 +189,8 @@ function CreateInvoice() {
           />
         </div>
         <button type="submit">Generate Invoice</button>
+        <br />
+        <button type="submit">Save Draft</button>
       </form>
     </div>
   );
