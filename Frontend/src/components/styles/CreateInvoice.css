@@ -1,5 +1,6 @@
 .invoice-form {
   width: 100%;
+  margin: auto;
 }
 
 .invoice-form h2 {
@@ -9,6 +10,7 @@
 
 .form-row {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: 15px;
   gap: 15px;
@@ -32,7 +34,8 @@
   font-size: 1em;
 }
 
-button[type="submit"] {
+button[type="submit"],
+button[type="button"] {
   padding: 10px 20px;
   background-color: #007bff;
   border: none;
@@ -41,14 +44,51 @@ button[type="submit"] {
   font-size: 1em;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  display: block;
-  width: 100%;
+  margin: 5px 0;
 }
 
-button[type="submit"]:hover {
+button[type="submit"]:hover,
+button[type="button"]:hover {
   background-color: #0056b3;
 }
 
-button[type="submit"]:active {
+button[type="submit"]:active,
+button[type="button"]:active {
   background-color: #004494;
+}
+
+.invoice-preview {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.invoice-preview h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.invoice-preview table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoice-preview th,
+.invoice-preview td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.invoice-preview th {
+  background-color: #f2f2f2;
+}
+
+.invoice-preview button {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 10px auto;
 }
