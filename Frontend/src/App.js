@@ -9,6 +9,7 @@ import SupplierProfile from "./components/SupplierProfile.jsx";
 function App() {
   return (
     <Router>
+      
       <Routes>
         <Route path="/login" element={<LoginComponent />} />
         <Route path="/signup" element={<SignupComponent />} />
@@ -16,6 +17,7 @@ function App() {
         <Route path="/supplier-profile" element={<SupplierProfile />} />
         <Route path="/" element={<LoginComponent />} />
       </Routes>
+      <NotificationManager />
     </Router>
   );
 }

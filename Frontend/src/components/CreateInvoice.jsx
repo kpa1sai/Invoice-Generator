@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import "./styles/CreateInvoice.css";
+//import SaveDraftInvoice from './SaveDraftInvoice';
+import SaveDraftInvoice from './SaveDraftInvoice';
 
 function CreateInvoice() {
   const [invoice, setInvoice] = useState({
@@ -188,6 +190,8 @@ function CreateInvoice() {
           />
         </div>
         <button type="submit">Generate Invoice</button>
+        <br />
+        <button type="submit">Save Draft</button>
       </form>
     </div>
   );
