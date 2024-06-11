@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles/LoginComponent.css";
 
@@ -9,23 +10,20 @@ function LoginComponent() {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
-    // event.preventDefault();
-    // try {
-    //   const response = await axios.post("http://localhost:5000/login", { username, password });
-    //   const { userId } = response.data;
+    event.preventDefault();
+    try {
+      // Authenticate user and get token
+      const response = await axios.post("http://localhost:8000/api/accounts/login/", { username, password });
+      const { token } = response.data;
 
-    //   // Check if the profile exists
-    //   const profileResponse = await axios.get(`http://localhost:5000/api/supplier/${userId}`);
-    //   if (profileResponse.data.profileExists) {
-    //     navigate("/dashboard");
-    //   } else {
-    //     navigate("/supplier-profile");
-    //   }
-    // } catch (err) {
-    //   setError("Invalid username or password");
-    //   alert("Invalid username or password");
-    // }
-    navigate("/dashboard");
+      // Store token in local storage
+      localStorage.setItem("token", token);
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Invalid username or password");
+    }
   };
 
   return (
@@ -38,7 +36,7 @@ function LoginComponent() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            //required
+            required
           />
         </div>
         <div className="form-group">
@@ -47,7 +45,7 @@ function LoginComponent() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            //required
+            required
           />
         </div>
         <button type="submit">Login</button>
