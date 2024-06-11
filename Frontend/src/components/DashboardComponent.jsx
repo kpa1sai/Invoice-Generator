@@ -1,8 +1,9 @@
 import React from "react";
 import { Link, Route, Routes, useNavigate } from "react-router-dom";
-import "./styles/DashboardComponent.css";
 import AddClient from "./AddClient.jsx";
 import CreateInvoice from "./CreateInvoice.jsx";
+import "./styles/DashboardComponent.css";
+import SupplierProfile from "./SupplierProfile.jsx";
 import ViewInvoices from "./ViewInvoices.jsx";
 
 function Welcome() {
@@ -30,6 +31,11 @@ function DashboardComponent() {
           </div>
           <ul className="nav-links">
             <li>
+              <Link to="supplier-profile" className="nav-link">
+                Supplier Profile
+              </Link>
+            </li>
+            <li>
               <Link to="view-invoices" className="nav-link">
                 View Invoices
               </Link>
@@ -56,6 +62,7 @@ function DashboardComponent() {
           <Route path="view-invoices" element={<ViewInvoices />} />
           <Route path="create-invoice" element={<CreateInvoice />} />
           <Route path="add-client" element={<AddClient />} />
+          <Route path="supplier-profile" element={<SupplierProfile />} />
         </Routes>
       </div>
     </div>
