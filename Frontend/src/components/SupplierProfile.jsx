@@ -30,9 +30,14 @@ function SupplierProfile() {
     formData.append("supplierEmail", profile.supplierEmail);
     formData.append("addressId", profile.addressId);
     formData.append("logo", profile.logo);
-
+    const data = {
+        username: profile.supplierEmail,
+        supplier_name: profile.supplierName,
+        address_id: null,
+        supplier_logo: null
+      };
     try {
-      await axios.post("http://localhost:5000/api/supplier", formData, {
+      await axios.post("http://localhost:5000/api/suppliers/", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -77,7 +82,6 @@ function SupplierProfile() {
               name="addressId"
               value={profile.addressId}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="form-group">
