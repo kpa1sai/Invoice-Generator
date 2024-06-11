@@ -14,7 +14,7 @@ function LoginComponent() {
     //   const response = await axios.post("http://localhost:5000/login", { username, password });
     //   const { userId } = response.data;
 
-    //   // Check if the profile exists
+    
     //   const profileResponse = await axios.get(`http://localhost:5000/api/supplier/${userId}`);
     //   if (profileResponse.data.profileExists) {
     //     navigate("/dashboard");
