@@ -3,13 +3,11 @@ import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
-import DraftInvoices from "./DraftInvoices"; // Import the new component
 import "./styles/ViewInvoices.css";
 
 function ViewInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [viewOption, setViewOption] = useState("All"); // Default view option
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,32 +30,34 @@ function ViewInvoices() {
     navigate("/dashboard/create-invoice", { state: { invoice } });
   };
 
-  const handleViewOptionChange = (option) => {
-    setViewOption(option);
+  const getTileClassName = ({ date, view }) => {
+    if (view === "month") {
+      const dateStr = date.toISOString().split("T")[0];
+      const invoiceDates = invoices.map(
+        (invoice) => invoice.date.split("T")[0]
+      );
+      if (invoiceDates.includes(dateStr)) {
+        return "react-calendar__tile--highlight";
+      }
+    }
+    return null;
   };
 
   const handleDateClick = (date) => {
     setSelectedDate(date.toISOString().split("T")[0]);
   };
 
-  let filteredInvoices = invoices;
-  if (selectedDate) {
-    filteredInvoices = filteredInvoices.filter(
-      (invoice) => invoice.date.split("T")[0] === selectedDate
-    );
-  }
-
-  if (viewOption === "Drafts") {
-    return <DraftInvoices />;
-  }
+  const filteredInvoices = invoices.filter(
+    (invoice) => invoice.date.split("T")[0] === selectedDate
+  );
 
   return (
     <div className="view-invoices content">
       <h2>Invoices</h2>
-      
       <div className="calendar-container">
         <Calendar
           onClickDay={handleDateClick}
+          tileClassName={getTileClassName}
         />
       </div>
       {selectedDate && (
@@ -98,10 +98,6 @@ function ViewInvoices() {
           )}
         </div>
       )}
-      <div className="options">
-        <button onClick={() => handleViewOptionChange("All")}>All Invoices</button>
-        <button onClick={() => handleViewOptionChange("Drafts")}>Draft Invoices</button>
-      </div>
     </div>
   );
 }

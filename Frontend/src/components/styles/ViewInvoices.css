@@ -144,13 +144,3 @@
 .invoice-list button:active {
   background-color: #004494;
 }
-
-.options {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.options button {
-  margin: 0 10px;
-}
