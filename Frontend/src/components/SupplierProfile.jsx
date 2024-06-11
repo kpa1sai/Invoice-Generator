@@ -28,7 +28,7 @@ function SupplierProfile() {
     const formData = new FormData();
     formData.append("supplierName", profile.supplierName);
     formData.append("supplierEmail", profile.supplierEmail);
-    formData.append("address", profile.addressId);
+    formData.append("addressId", profile.addressId);
     formData.append("logo", profile.logo);
 
     try {
@@ -51,7 +51,7 @@ function SupplierProfile() {
         <form onSubmit={handleSubmit}>
           <h2>Create Supplier Profile</h2>
           <div className="form-group">
-            <label>Supplier Name:</label>
+            <label>Name:</label>
             <input
               type="text"
               name="supplierName"
@@ -61,7 +61,7 @@ function SupplierProfile() {
             />
           </div>
           <div className="form-group">
-            <label>Supplier Email:</label>
+            <label>Email:</label>
             <input
               type="email"
               name="supplierEmail"
@@ -71,7 +71,7 @@ function SupplierProfile() {
             />
           </div>
           <div className="form-group">
-            <label>Address ID:</label>
+            <label>Address:</label>
             <input
               type="text"
               name="addressId"
