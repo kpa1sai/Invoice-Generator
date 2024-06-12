@@ -7,97 +7,104 @@ import "./styles/ViewInvoices.css";
 
 function ViewInvoices() {
   const [invoices, setInvoices] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [drafts, setDrafts] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Default to today for initial load
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/invoices")
-      .then((response) => setInvoices(response.data))
-      .catch((error) => console.error("Error fetching invoices:", error));
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/invoices");
+        const allInvoices = response.data;
+        setInvoices(allInvoices.filter(invoice => !invoice.isDraft));
+        setDrafts(allInvoices.filter(invoice => invoice.isDraft));
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    };
+    fetchData();
   }, []);
 
-  const handleDelete = (id) => {
-    axios
-      .delete(`http://localhost:5000/api/invoices/${id}`)
-      .then(() => {
-        setInvoices(invoices.filter((invoice) => invoice.id !== id));
-      })
-      .catch((error) => console.error("Error deleting invoice:", error));
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/invoices/${id}`);
+      setInvoices(invoices.filter((invoice) => invoice.id !== id));
+      setDrafts(drafts.filter((draft) => draft.id !== id));
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+    }
   };
 
   const handleEdit = (invoice) => {
     navigate("/dashboard/create-invoice", { state: { invoice } });
   };
 
-  const getTileClassName = ({ date, view }) => {
-    if (view === "month") {
-      const dateStr = date.toISOString().split("T")[0];
-      const invoiceDates = invoices.map(
-        (invoice) => invoice.date.split("T")[0]
-      );
-      if (invoiceDates.includes(dateStr)) {
-        return "react-calendar__tile--highlight";
-      }
+  const handleDownload = async (invoiceId) => {
+    window.location.href = `http://localhost:5000/api/invoices/download/${invoiceId}`;
+  };
+
+  const handleEmail = async (invoiceId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/invoices/email/${invoiceId}`);
+      alert("Invoice emailed successfully");
+    } catch (error) {
+      console.error("Error emailing invoice:", error);
     }
-    return null;
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date.toISOString().split("T")[0]);
+    setSelectedDate(date);
   };
 
   const filteredInvoices = invoices.filter(
-    (invoice) => invoice.date.split("T")[0] === selectedDate
+    (invoice) => new Date(invoice.date).toLocaleDateString() === selectedDate.toLocaleDateString()
   );
 
   return (
     <div className="view-invoices content">
-      <h2>Invoices</h2>
-      <div className="calendar-container">
-        <Calendar
-          onClickDay={handleDateClick}
-          tileClassName={getTileClassName}
-        />
-      </div>
-      {selectedDate && (
+      <div className="left-section">
+        <h2>Generated Invoices</h2>
         <div className="invoice-list">
-          <h3>Invoices for {selectedDate}</h3>
+          <h3>Invoices for {selectedDate.toDateString()}</h3>
           {filteredInvoices.length === 0 ? (
             <p>No Invoices Available</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Invoice #</th>
-                  <th>Date</th>
-                  <th>Due Date</th>
-                  <th>Client</th>
-                  <th>Amount</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td>{invoice.invoiceNumber}</td>
-                    <td>{invoice.date}</td>
-                    <td>{invoice.dueDate}</td>
-                    <td>{invoice.clientName}</td>
-                    <td>{invoice.amount}</td>
-                    <td>
-                      <button onClick={() => handleEdit(invoice)}>Edit</button>
-                      <button onClick={() => handleDelete(invoice.id)}>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            filteredInvoices.map((invoice) => (
+              <div key={invoice.id} className="invoice-bar">
+                <span className="invoice-number">#{invoice.invoiceNumber}</span>
+                <span className="invoice-status">Created</span>
+                <div className="invoice-actions">
+                  <button onClick={() => handleEdit(invoice)}>Edit</button>
+                  <button onClick={() => handleDelete(invoice.id)}>Delete</button>
+                  <button onClick={() => handleDownload(invoice.id)}>Download</button>
+                  <button onClick={() => handleEmail(invoice.id)}>Email</button>
+                </div>
+              </div>
+            ))
           )}
         </div>
-      )}
+        <h2>Saved Drafts</h2>
+        {drafts.map((draft) => (
+          <div key={draft.id} className="invoice-bar draft">
+            <span className="invoice-number">#{draft.invoiceNumber}</span>
+            <span className="invoice-status">Draft</span>
+            <div className="invoice-actions">
+              <button onClick={() => handleEdit(draft)}>Edit</button>
+              <button onClick={() => handleDelete(draft.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="right-section">
+        <h2>Calendar</h2>
+        <div className="calendar-container">
+          <Calendar
+            onClickDay={handleDateClick}
+            value={selectedDate}
+            tileClassName={({ date, view }) => view === 'month' && new Date(date).toLocaleDateString() === selectedDate.toLocaleDateString() ? 'react-calendar__tile--highlight' : null}
+          />
+        </div>
+      </div>
     </div>
   );
 }
