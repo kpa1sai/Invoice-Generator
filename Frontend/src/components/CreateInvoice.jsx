@@ -12,6 +12,8 @@ function CreateInvoice() {
     logo: null,
   });
 
+  const [isDraft, setIsDraft] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setInvoice((prevInvoice) => ({ ...prevInvoice, [name]: value }));
@@ -28,18 +30,9 @@ function CreateInvoice() {
     setInvoice((prevInvoice) => ({ ...prevInvoice, logo: e.target.files[0] }));
   };
 
-  //   const handleAddItem = () => {
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       items: [
-  //         ...prevInvoice.items,
-  //         { name: "", description: "", quantity: 1, rate: 0 },
-  //       ],
-  //     }));
-  //   };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, saveAsDraft = false) => {
     e.preventDefault();
+    setIsDraft(saveAsDraft);
     const formData = new FormData();
     formData.append("invoiceNumber", invoice.invoiceNumber);
     formData.append("invoiceDate", invoice.invoiceDate);
@@ -47,6 +40,7 @@ function CreateInvoice() {
     formData.append("clientName", invoice.clientName);
     formData.append("logo", invoice.logo);
     formData.append("items", JSON.stringify(invoice.items));
+    formData.append("isDraft", saveAsDraft);
 
     try {
       await axios.post("http://localhost:5000/api/invoices", formData, {
@@ -54,7 +48,8 @@ function CreateInvoice() {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Invoice saved successfully");
+      alert(`Invoice ${saveAsDraft ? 'saved as draft' : 'generated'} successfully`);
+      
       // Reset form
       setInvoice({
         invoiceNumber: "",
@@ -64,6 +59,18 @@ function CreateInvoice() {
         items: [{ name: "", description: "", quantity: 1, rate: 0 }],
         logo: null,
       });
+      
+      if (!saveAsDraft) {
+        
+        if (window.confirm("Do you want to download the invoice?")) {
+          
+          window.location.href = "http://localhost:5000/api/invoices/download"; 
+        } else if (window.confirm("Do you want to email the invoice?")) {
+          
+          await axios.post("http://localhost:5000/api/invoices/email", { invoiceNumber: invoice.invoiceNumber });
+          alert("Invoice emailed successfully");
+        }
+      }
     } catch (error) {
       console.error("Error saving invoice:", error);
     }
@@ -72,7 +79,7 @@ function CreateInvoice() {
   return (
     <div className="invoice-form content">
       <h2>Create Invoice</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => handleSubmit(e, false)}>
         <div className="form-row">
           <div className="form-group">
             <label>Invoice #</label>
@@ -188,6 +195,7 @@ function CreateInvoice() {
           />
         </div>
         <button type="submit">Generate Invoice</button>
+        <button type="button" onClick={(e) => handleSubmit(e, true)}>Save as Draft</button>
       </form>
     </div>
   );
