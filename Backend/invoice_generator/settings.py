@@ -40,22 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'invoices',
-    'accounts',
-    'rest_framework.authtoken',
-    'dj_rest_auth',
-    'django.contrib.sites',
 ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-}
-
-SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
