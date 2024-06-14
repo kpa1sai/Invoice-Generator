@@ -8,28 +8,44 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+from rest_framework.permissions import IsAuthenticated
 
-# Import necessary modules and models
+from rest_framework import generics
+from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny
+from .serializers import UserSerializer
+
+
+class UserCreate(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+    permission_classes = [IsAuthenticated]
+
 
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
 
 class AddressViewSet(viewsets.ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
 
 class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    permission_classes = [IsAuthenticated]
 
 class InvoiceItemViewSet(viewsets.ModelViewSet):
     queryset = InvoiceItem.objects.all()
     serializer_class = InvoiceItemSerializer
+    permission_classes = [IsAuthenticated]
 
 def draw_invoice_title(canvas, doc, supplier_name, invoice_number, invoice_date):
     width, height = letter

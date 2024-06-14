@@ -3,3 +3,4 @@ django-cors-headers
 Pillow
 mysqlclient
 reportlab
+djangorestframework-simplejwt
