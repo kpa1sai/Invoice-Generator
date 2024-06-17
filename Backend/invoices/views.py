@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Supplier, Customer, Address, Invoice, InvoiceItem
 from .serializers import SupplierSerializer, CustomerSerializer, AddressSerializer, InvoiceSerializer, InvoiceItemSerializer
 from django.http import HttpResponseNotFound, FileResponse
 import io
+import os
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
@@ -14,6 +17,20 @@ from reportlab.lib.styles import getSampleStyleSheet
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+
+    @action(detail=True, methods=['get'])
+    def customers(self, request, pk=None):
+            supplier = self.get_object()
+            customers = Customer.objects.filter(supplier=supplier)
+            serializer = CustomerSerializer(customers, many=True)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def invoices(self, request, pk=None):
+        supplier = self.get_object()
+        invoices = Invoice.objects.filter(customer__supplier=supplier)
+        serializer = InvoiceSerializer(invoices, many=True)
+        return Response(serializer.data)
 
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
@@ -243,3 +260,34 @@ def generate_invoice_pdf(request, invoice_id):
         # Log the error (you might want to log the actual error message in a real application)
         print(f"Error generating PDF: {e}")
         return HttpResponseNotFound("An error occurred while generating the PDF")
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from .utils.auth.sendemail import send_email
+
+def send_invoice(request, invoice_id):
+    # Fetch invoice details from the database
+    try:
+        # Retrieve the invoice object
+        invoice = Invoice.objects.get(pk=invoice_id)
+    except Invoice.DoesNotExist:
+        return HttpResponseNotFound("Invoice not found")
+    try:
+        customer_email = invoice.customer.address_id.email
+    except Address.DoesNotExist:
+        return HttpResponseNotFound("Add email in customer address details and try again!!")
+    context = {
+        'customer_name': invoice.customer.customer_name,
+        'invoice_number': invoice.invoice_number,
+        'amount': invoice.total_price,
+        # Add more context variables as needed
+    }
+    template_path = os.path.join(os.getcwd(), 'templates', 'email', 'email_template_1.html')
+    send_email(
+        to=customer_email,
+        subject='Your Invoice',
+        template_name= template_path,
+        context=context
+    )
+    return HttpResponse('Invoice sent successfully!')
