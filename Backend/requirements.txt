@@ -3,3 +3,8 @@ django-cors-headers
 Pillow
 mysqlclient
 reportlab
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+django-templated-email

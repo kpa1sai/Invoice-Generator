@@ -1,9 +1,9 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import { useNavigate } from "react-router-dom";
-import "./styles/ViewInvoices.css";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import { useNavigate } from 'react-router-dom';
+import './styles/ViewInvoices.css';
 
 function ViewInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -12,56 +12,56 @@ function ViewInvoices() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/invoices")
+      .get('http://localhost:8000/api/invoices')
       .then((response) => setInvoices(response.data))
-      .catch((error) => console.error("Error fetching invoices:", error));
+      .catch((error) => console.error('Error fetching invoices:', error));
   }, []);
 
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:5000/api/invoices/${id}`)
+      .delete(`http://localhost:8000/api/invoices/${id}`)
       .then(() => {
         setInvoices(invoices.filter((invoice) => invoice.id !== id));
       })
-      .catch((error) => console.error("Error deleting invoice:", error));
+      .catch((error) => console.error('Error deleting invoice:', error));
   };
 
   const handleEdit = (invoice) => {
-    navigate("/dashboard/create-invoice", { state: { invoice } });
+    navigate('/dashboard/create-invoice', { state: { invoice } });
   };
 
   const getTileClassName = ({ date, view }) => {
-    if (view === "month") {
-      const dateStr = date.toISOString().split("T")[0];
+    if (view === 'month') {
+      const dateStr = date.toISOString().split('T')[0];
       const invoiceDates = invoices.map(
-        (invoice) => invoice.date.split("T")[0]
+        (invoice) => invoice.date.split('T')[0]
       );
       if (invoiceDates.includes(dateStr)) {
-        return "react-calendar__tile--highlight";
+        return 'react-calendar__tile--highlight';
       }
     }
     return null;
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date.toISOString().split("T")[0]);
+    setSelectedDate(date.toISOString().split('T')[0]);
   };
 
   const filteredInvoices = invoices.filter(
-    (invoice) => invoice.date.split("T")[0] === selectedDate
+    (invoice) => invoice.date.split('T')[0] === selectedDate
   );
 
   return (
-    <div className="view-invoices content">
+    <div className='view-invoices content'>
       <h2>Invoices</h2>
-      <div className="calendar-container">
+      <div className='calendar-container'>
         <Calendar
           onClickDay={handleDateClick}
           tileClassName={getTileClassName}
         />
       </div>
       {selectedDate && (
-        <div className="invoice-list">
+        <div className='invoice-list'>
           <h3>Invoices for {selectedDate}</h3>
           {filteredInvoices.length === 0 ? (
             <p>No Invoices Available</p>
