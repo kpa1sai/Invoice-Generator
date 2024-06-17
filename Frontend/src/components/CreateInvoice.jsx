@@ -1,9 +1,11 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import "./styles/CreateInvoice.css";
 
-function CreateInvoice() {
-  const [invoice, setInvoice] = useState({
+function CreateInvoice({ addInvoice, addDraft }) {
+  const location = useLocation();
+  const [invoice, setInvoice] = useState(location.state?.invoice || {
     invoiceNumber: "",
     invoiceDate: "",
     dueDate: "",
@@ -11,32 +13,17 @@ function CreateInvoice() {
     items: [{ name: "", description: "", quantity: 1, rate: 0 }],
     logo: null,
   });
+  const [clients, setClients] = useState([]);
+
+  useEffect(() => {
+    const loadedClients = JSON.parse(localStorage.getItem("clients")) || [];
+    setClients(loadedClients);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setInvoice((prevInvoice) => ({ ...prevInvoice, [name]: value }));
   };
-
-  const handleItemChange = (index, e) => {
-    const { name, value } = e.target;
-    const items = [...invoice.items];
-    items[index][name] = value;
-    setInvoice((prevInvoice) => ({ ...prevInvoice, items }));
-  };
-
-  const handleLogoChange = (e) => {
-    setInvoice((prevInvoice) => ({ ...prevInvoice, logo: e.target.files[0] }));
-  };
-
-  //   const handleAddItem = () => {
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       items: [
-  //         ...prevInvoice.items,
-  //         { name: "", description: "", quantity: 1, rate: 0 },
-  //       ],
-  //     }));
-  //   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,13 +36,13 @@ function CreateInvoice() {
     formData.append("items", JSON.stringify(invoice.items));
 
     try {
-      await axios.post("http://localhost:5000/api/invoices", formData, {
+      await axios.post("http://127.0.0.1:8000/api/invoices/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       alert("Invoice saved successfully");
-      // Reset form
+      addInvoice(invoice);
       setInvoice({
         invoiceNumber: "",
         invoiceDate: "",
@@ -67,6 +54,19 @@ function CreateInvoice() {
     } catch (error) {
       console.error("Error saving invoice:", error);
     }
+  };
+
+  const handleSaveDraft = () => {
+    addDraft(invoice);
+    alert("Draft saved successfully");
+    setInvoice({
+      invoiceNumber: "",
+      invoiceDate: "",
+      dueDate: "",
+      clientName: "",
+      items: [{ name: "", description: "", quantity: 1, rate: 0 }],
+      logo: null,
+    });
   };
 
   return (
@@ -99,14 +99,19 @@ function CreateInvoice() {
         <div className="form-row">
           <div className="form-group">
             <label>Bill to:</label>
-            <input
-              type="text"
+            <select
               name="clientName"
               value={invoice.clientName}
               onChange={handleChange}
-              placeholder="Who is this invoice for?"
               required
-            />
+            >
+              <option value="">Select a Client</option>
+              {clients.map((client, index) => (
+                <option key={index} value={client.customer_name}>
+                  {client.customer_name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label>Due Date</label>
@@ -119,75 +124,10 @@ function CreateInvoice() {
             />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Item</label>
-            <input
-              type="text"
-              name="name"
-              value={invoice.items[0].name}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="Item name"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <input
-              type="text"
-              name="description"
-              value={invoice.items[0].description}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="Description"
-              required
-            />
-          </div>
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={invoice.items[0].quantity}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="1"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Rate</label>
-            <input
-              type="number"
-              name="rate"
-              value={invoice.items[0].rate}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="0.00"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Amount</label>
-            <input
-              type="number"
-              value={(
-                invoice.items[0].quantity * invoice.items[0].rate
-              ).toFixed(2)}
-              placeholder="0.00"
-              disabled
-            />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Upload Logo</label>
-          <input
-            type="file"
-            name="logo"
-            onChange={handleLogoChange}
-            accept="image/*"
-          />
-        </div>
         <button type="submit">Generate Invoice</button>
+        <button type="button" onClick={handleSaveDraft}>
+          Save as Draft
+        </button>
       </form>
     </div>
   );
