@@ -5,10 +5,9 @@ import "./styles/SupplierProfile.css";
 
 function SupplierProfile() {
   const [profile, setProfile] = useState({
-    supplierName: "",
-    supplierEmail: "",
-    logo: null,
-    addressId: "",
+    username: "",            // Renamed from supplierName to username to match backend
+    supplier_name: "",       // Matches the API field
+    supplier_logo: null,     // Changed from logo to supplier_logo
   });
 
   const [error, setError] = useState("");
@@ -20,28 +19,28 @@ function SupplierProfile() {
   };
 
   const handleLogoChange = (e) => {
-    setProfile((prevProfile) => ({ ...prevProfile, logo: e.target.files[0] }));
+    setProfile((prevProfile) => ({ ...prevProfile, supplier_logo: e.target.files[0] }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("supplierName", profile.supplierName);
-    formData.append("supplierEmail", profile.supplierEmail);
-    formData.append("addressId", profile.addressId);
-    formData.append("logo", profile.logo);
+    formData.append("username", profile.username);
+    formData.append("supplier_name", profile.supplier_name);
+    formData.append("supplier_logo", profile.supplier_logo);
 
     try {
-      await axios.post("http://localhost:5000/api/supplier", formData, {
+      const response = await axios.post("http://127.0.0.1:8000/api/suppliers/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       alert("Profile created successfully");
+      localStorage.setItem('supplierId', response.data.supplierId); // Assuming response contains a supplierId field
       navigate("/dashboard");
     } catch (error) {
       console.error("Error creating profile:", error);
-      setError("Failed to create profile");
+      setError("Failed to create profile: " + (error.response ? error.response.data.message : error.message));
     }
   };
 
@@ -51,31 +50,21 @@ function SupplierProfile() {
         <form onSubmit={handleSubmit}>
           <h2>Create Supplier Profile</h2>
           <div className="form-group">
-            <label>Name:</label>
+            <label>Username:</label>
             <input
               type="text"
-              name="supplierName"
-              value={profile.supplierName}
+              name="username"
+              value={profile.username}
               onChange={handleChange}
               required
             />
           </div>
           <div className="form-group">
-            <label>Email:</label>
-            <input
-              type="email"
-              name="supplierEmail"
-              value={profile.supplierEmail}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Address:</label>
+            <label>Supplier Name:</label>
             <input
               type="text"
-              name="addressId"
-              value={profile.addressId}
+              name="supplier_name"
+              value={profile.supplier_name}
               onChange={handleChange}
               required
             />
@@ -84,7 +73,7 @@ function SupplierProfile() {
             <label>Upload Logo:</label>
             <input
               type="file"
-              name="logo"
+              name="supplier_logo"
               onChange={handleLogoChange}
               accept="image/*"
             />
