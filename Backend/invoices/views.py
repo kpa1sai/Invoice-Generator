@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Supplier, Customer, Address, Invoice, InvoiceItem
 from .serializers import SupplierSerializer, CustomerSerializer, AddressSerializer, InvoiceSerializer, InvoiceItemSerializer
 from django.http import HttpResponseNotFound, FileResponse
@@ -15,6 +17,20 @@ from reportlab.lib.styles import getSampleStyleSheet
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+
+    @action(detail=True, methods=['get'])
+    def customers(self, request, pk=None):
+            supplier = self.get_object()
+            customers = Customer.objects.filter(supplier=supplier)
+            serializer = CustomerSerializer(customers, many=True)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def invoices(self, request, pk=None):
+        supplier = self.get_object()
+        invoices = Invoice.objects.filter(customer__supplier=supplier)
+        serializer = InvoiceSerializer(invoices, many=True)
+        return Response(serializer.data)
 
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
