@@ -9,6 +9,11 @@ jobs:
       - checkout
 
       - run:
+          name: Ensure wait-for-db.sh is executable
+          command: |
+            chmod +x wait-for-db.sh
+
+      - run:
           name: Wait for MySQL to be healthy
           command: docker-compose -f docker-compose.yml up -d db && docker-compose -f docker-compose.yml run backend sh -c './wait-for-it.sh db:3306 -- echo "Database is up"'
 
