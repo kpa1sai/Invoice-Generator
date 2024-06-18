@@ -11,6 +11,7 @@ jobs:
       - run:
         name: List project files
         command: ls -la /home/circleci/project/Backend
+
       # Install Docker client in CircleCI container (if deploying Docker images)
       - setup_remote_docker:
           version: default
