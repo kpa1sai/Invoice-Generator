@@ -1,0 +1,47 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+
+      # Install Docker client in CircleCI container (if deploying Docker images)
+      - setup_remote_docker:
+          version: 20.10.7
+
+      # Build and test backend (adjust paths and commands as per your project structure)
+      - run:
+          name: Install dependencies and run tests
+          command: |
+            docker-compose -f docker-compose.yml build backend
+            docker-compose -f docker-compose.yml run backend python manage.py test  # Replace with your test command
+
+      # Build frontend (adjust paths and commands as per your project structure)
+      - run:
+          name: Build frontend
+          command: |
+            docker-compose -f docker-compose.yml build frontend
+
+      # Push frontend and backend images to Docker Hub or GCR (Google Container Registry)
+      - run:
+          name: Push Docker images
+          command: |
+            echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+            docker-compose -f docker-compose.yml push
+
+      # # Deploy to GCP (adjust deployment steps as per your setup)
+      # - run:
+      #     name: Deploy to GCP
+      #     command: |
+      #       gcloud auth activate-service-account --key-file=gcp-key.json
+      #       gcloud config set project your-gcp-project-id
+      #       gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
