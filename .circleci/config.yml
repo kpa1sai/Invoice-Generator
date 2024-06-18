@@ -9,8 +9,9 @@ jobs:
       - checkout
 
       - run:
-          name: Ensure wait-for-db.sh is executable
+          name: Ensure wait-for-db.sh is executable and User permissions script
           command: |
+            chmod +x Backend/generate-init-sql.sh
             chmod +x Backend/wait-for-it.sh
 
       - run:
@@ -18,10 +19,15 @@ jobs:
           command: docker-compose -f docker-compose.yml up -d db && docker-compose -f docker-compose.yml run backend sh -c './wait-for-it.sh db:3306 -- echo "Database is up"'
 
       - run:
-          name: Setup Test Database Permissions
+          name: Apply init.sql
           command: |
-            docker exec -i $(docker-compose ps -q db) mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW GRANTS FOR 'myuser'@'${MYSQL_DATABASE}';"
-            docker exec -i $(docker-compose ps -q db) mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "FLUSH PRIVILEGES;"
+            docker-compose exec -T db mysql -u$MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD < init.sql
+
+      - run:
+          name: Verify Database and Privileges
+          command: |
+            docker-compose exec db mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
+            docker-compose exec db mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW GRANTS FOR 'myuser'@'%';"
 
       - run:
           name: List project files
