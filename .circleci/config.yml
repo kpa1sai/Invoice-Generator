@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Setup Test Database
           command: |
-            docker-compose exec db sh -c "mysql -u$DB_USER -p$DB_PASSWORD -e 'CREATE DATABASE IF NOT EXISTS test_$DB_NAME;'"
+            docker-compose exec db sh -c "mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e 'CREATE DATABASE IF NOT EXISTS test_$MYSQL_DATABASE;'"
 
       - run:
           name: List project files
