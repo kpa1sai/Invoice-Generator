@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     command: sh -c "python manage.py migrate && python manage.py test"
     volumes:
-      - ./backend:/app
+      - ./Backend:/app
     ports:
       - '8000:8000'
     environment:
