@@ -1,82 +1,40 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import AddressForm from './AddressForm';
-import './styles/AddClient.css';
+import React, { useState } from "react";
+import "./styles/AddClient.css";
 
-function AddClient() {
-  const initialSupplierId = localStorage.getItem('supplierId') || null;
-
+function AddClient({ addClient }) {
   const [client, setClient] = useState({
-<<<<<<< HEAD
     customer_name: "",
-    customer_type: "",
-    supplier: initialSupplierId, // Set initial state to the supplierId from local storage if available
-    address_id: null
-=======
-    name: '',
-    email: '',
-    phone: '',
-    addressId: ''
->>>>>>> origin/main
+    contact_person: "",
+    email: "",
+    phone: "",
+    address: "",
   });
-
-  const [showAddressForm, setShowAddressForm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setClient(prevClient => ({ ...prevClient, [name]: value }));
-  };
-
-  const handleAddressSave = (address) => {
-    setClient((prevClient) => ({ ...prevClient, addressId: address.id }));
-    setShowAddressForm(false);
+    setClient((prevClient) => ({ ...prevClient, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-<<<<<<< HEAD
-      .post("http://127.0.0.1:8000/api/customers/", client)
-      .then((response) => {
-        alert("Client added successfully");
-        const existingClients = JSON.parse(localStorage.getItem("clients")) || [];
-        existingClients.push(client);
-        localStorage.setItem("clients", JSON.stringify(existingClients));
-        setClient({
-          customer_name: "",
-          customer_type: "",
-          supplier: initialSupplierId, // Reset to initialSupplierId if needed or set to null
-          address_id: null
-        });
-      })
-      .catch((error) => {
-        console.error("Error adding client:", error);
-        alert("Failed to add client. Check console for details.");
-      });
-=======
-      .post('http://localhost:5000/api/clients', client, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then((response) => {
-        alert('Client added successfully');
-        setClient({
-          name: '',
-          email: '',
-          phone: '',
-          addressId: ''
-        });
-      })
-      .catch((error) => console.error('Error adding client:', error));
->>>>>>> origin/main
+    const storedClients = JSON.parse(localStorage.getItem("clients")) || [];
+    const newClients = [...storedClients, client];
+    localStorage.setItem("clients", JSON.stringify(newClients));
+    alert("Client saved successfully");
+    addClient(client);
+    setClient({
+      customer_name: "",
+      contact_person: "",
+      email: "",
+      phone: "",
+      address: "",
+    });
   };
 
   return (
-    <div className='client-form content'>
+    <div className="client-form content">
       <h2>Add Client</h2>
       <form onSubmit={handleSubmit}>
-<<<<<<< HEAD
         <div className="form-group">
           <label>Customer Name</label>
           <input
@@ -89,78 +47,50 @@ function AddClient() {
           />
         </div>
         <div className="form-group">
-          <label>Customer Type</label>
+          <label>Contact Person</label>
           <input
             type="text"
-            name="customer_type"
-            value={client.customer_type}
+            name="contact_person"
+            value={client.contact_person}
             onChange={handleChange}
-            placeholder="Customer Type"
+            placeholder="Contact Person"
             required
           />
         </div>
         <div className="form-group">
-          <label>Supplier (ID or boolean)</label>
+          <label>Email</label>
           <input
-            type="text"
-            name="supplier"
-            value={client.supplier}
+            type="email"
+            name="email"
+            value={client.email}
             onChange={handleChange}
-            placeholder="Supplier ID or true/false"
+            placeholder="Email"
             required
           />
         </div>
         <div className="form-group">
-          <label>Address ID</label>
+          <label>Phone</label>
           <input
-            type="number"
-            name="address_id"
-            value={client.address_id}
+            type="text"
+            name="phone"
+            value={client.phone}
             onChange={handleChange}
-            placeholder="Address ID"
-            required
-=======
-        <div className='form-group'>
-          <label>Name</label>
-          <input
-            type='text'
-            name='name'
-            value={client.name}
-            onChange={handleChange}
-            placeholder='Client Name'
+            placeholder="Phone"
             required
           />
         </div>
-        <div className='form-group'>
-          <label>Customer Type</label>
-          <input
-            type='text'
-            name='ctype'
-            value={client.ctype}
-            onChange={handleChange}
-            placeholder='Individual / Business'
-            required
-          />
-        </div>
-        <div className='form-group'>
+        <div className="form-group">
           <label>Address</label>
-          <input
-            type='text'
-            name='addressId'
-            value={client.addressId}
+          <textarea
+            name="address"
+            value={client.address}
             onChange={handleChange}
-            readOnly
->>>>>>> origin/main
-          />
-          <button type='button' onClick={() => setShowAddressForm(true)}>
-            {client.addressId ? 'Update Address' : 'Add Address'}
-          </button>
+            placeholder="Address"
+            required
+          ></textarea>
         </div>
-        <button type='submit'>Add Client</button>
+        <button type="submit">Save Client</button>
       </form>
-      {showAddressForm && (
-        <AddressForm addressId={client.addressId} onSave={handleAddressSave} />
-      )}
     </div>
   );
 }
