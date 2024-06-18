@@ -6,7 +6,7 @@ WORKDIR /app
 
 
 # Install dependencies
-RUN sudo apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     default-libmysqlclient-dev && \
