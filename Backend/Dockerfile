@@ -14,11 +14,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt /app/
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /app/
+COPY . .
+
+RUN ls -la /app
 
 # Command to run the application
 CMD ["python", "manage.py", "runserver", "8000"]
