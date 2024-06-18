@@ -1,9 +1,9 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import { useNavigate } from "react-router-dom";
-import "./styles/ViewInvoices.css";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import { useNavigate } from 'react-router-dom';
+import './styles/ViewInvoices.css';
 
 function ViewInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -14,6 +14,7 @@ function ViewInvoices() {
 
   useEffect(() => {
     axios
+<<<<<<< HEAD
       .get("http://127.0.0.1:8000/api/invoice-items/")
       .then((response) => {
         const finalInvoices = response.data.filter((invoice) => !invoice.isDraft);
@@ -22,19 +23,29 @@ function ViewInvoices() {
         setDraftInvoices(drafts);
       })
       .catch((error) => console.error("Error fetching invoices:", error));
+=======
+      .get('http://localhost:8000/api/invoices')
+      .then((response) => setInvoices(response.data))
+      .catch((error) => console.error('Error fetching invoices:', error));
+>>>>>>> origin/main
   }, []);
 
   const handleDelete = (id) => {
     axios
+<<<<<<< HEAD
       .delete(`http://127.0.0.1:8000/api/invoices/${id}`)
+=======
+      .delete(`http://localhost:8000/api/invoices/${id}`)
+>>>>>>> origin/main
       .then(() => {
         setInvoices(invoices.filter((invoice) => invoice.id !== id));
         setDraftInvoices(draftInvoices.filter((invoice) => invoice.id !== id));
       })
-      .catch((error) => console.error("Error deleting invoice:", error));
+      .catch((error) => console.error('Error deleting invoice:', error));
   };
 
   const handleEdit = (invoice) => {
+<<<<<<< HEAD
     navigate("/create-invoice", { state: { invoice } });
   };
 
@@ -46,16 +57,30 @@ function ViewInvoices() {
       const allDates = [...invoiceDates, ...draftDates];
       if (allDates.includes(dateStr)) {
         return "react-calendar__tile--highlight";
+=======
+    navigate('/dashboard/create-invoice', { state: { invoice } });
+  };
+
+  const getTileClassName = ({ date, view }) => {
+    if (view === 'month') {
+      const dateStr = date.toISOString().split('T')[0];
+      const invoiceDates = invoices.map(
+        (invoice) => invoice.date.split('T')[0]
+      );
+      if (invoiceDates.includes(dateStr)) {
+        return 'react-calendar__tile--highlight';
+>>>>>>> origin/main
       }
     }
     return null;
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date.toISOString().split("T")[0]);
+    setSelectedDate(date.toISOString().split('T')[0]);
   };
 
   const filteredInvoices = invoices.filter(
+<<<<<<< HEAD
     (invoice) =>
       (!selectedDate || invoice.invoiceDate.split("T")[0] === selectedDate) &&
       (invoice.invoiceNumber.includes(searchQuery) ||
@@ -67,11 +92,15 @@ function ViewInvoices() {
       (!selectedDate || invoice.invoiceDate.split("T")[0] === selectedDate) &&
       (invoice.invoiceNumber.includes(searchQuery) ||
         invoice.clientName.includes(searchQuery))
+=======
+    (invoice) => invoice.date.split('T')[0] === selectedDate
+>>>>>>> origin/main
   );
 
   return (
-    <div className="view-invoices content">
+    <div className='view-invoices content'>
       <h2>Invoices</h2>
+<<<<<<< HEAD
       <div className="invoice-container">
         <div className="invoice-list">
           <div className="search-container">
@@ -84,6 +113,18 @@ function ViewInvoices() {
           </div>
           <h3>Invoices for {selectedDate || "All Dates"}</h3>
           {filteredInvoices.length === 0 && filteredDraftInvoices.length === 0 ? (
+=======
+      <div className='calendar-container'>
+        <Calendar
+          onClickDay={handleDateClick}
+          tileClassName={getTileClassName}
+        />
+      </div>
+      {selectedDate && (
+        <div className='invoice-list'>
+          <h3>Invoices for {selectedDate}</h3>
+          {filteredInvoices.length === 0 ? (
+>>>>>>> origin/main
             <p>No Invoices Available</p>
           ) : (
             <>
