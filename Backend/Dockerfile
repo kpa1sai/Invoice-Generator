@@ -1,34 +1,23 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.9
 
-# Set the working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    pkg-config \
-    default-libmysqlclient-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install pip and upgrade it
-RUN pip install --upgrade pip
-
-# Copy the requirements file first (leveraging Docker cache)
-COPY requirements.txt .
-
-# Display the contents of requirements.txt (for debugging)
-RUN cat requirements.txt
-
 # Install dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libmysqlclient-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin
+
+# Install Python dependencies
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
-COPY . .
+# Copy the rest of the application code
+COPY backend/ .
 
-# Set environment variables (if any)
-ENV PYTHONUNBUFFERED 1
-
-# Command to run migrations and start the server
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+# Command to run the application
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
