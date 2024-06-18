@@ -5,7 +5,10 @@ FROM python:3.9
 WORKDIR /app
 
 # Install dependencies
-RUN apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
