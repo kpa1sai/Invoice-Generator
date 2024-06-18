@@ -8,6 +8,10 @@ jobs:
     steps:
       - checkout
 
+      # Install Docker client in CircleCI container (if deploying Docker images)
+      - setup_remote_docker:
+          version: default
+
       - run:
           name: Ensure wait-for-db.sh is executable and User permissions script
           command: |
@@ -22,21 +26,17 @@ jobs:
           name: Apply init.sql
           command: |
             Backend/generate-init-sql.sh
-            docker-compose exec -T db mysql -u$MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD < init.sql
+            docker-compose exec -T db mysql -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} < init.sql
 
       - run:
           name: Verify Database and Privileges
           command: |
-            docker-compose exec db mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW DATABASES;"
-            docker-compose exec db mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "SHOW GRANTS FOR 'myuser'@'%';"
+            docker-compose exec db mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SHOW DATABASES;"
+            docker-compose exec db mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SHOW GRANTS FOR '${MYSQL_USER}'@'%';"
 
       - run:
           name: List project files
           command: ls -la /home/circleci/project/Backend
-
-      # Install Docker client in CircleCI container (if deploying Docker images)
-      - setup_remote_docker:
-          version: default
 
       # Build and test backend (adjust paths and commands as per your project structure)
       - run:
