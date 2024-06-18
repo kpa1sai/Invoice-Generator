@@ -9,8 +9,8 @@ jobs:
       - checkout
 
       - run:
-        name: List project files
-        command: ls -la /home/circleci/project/Backend
+          name: List project files
+          command: ls -la /home/circleci/project/Backend
 
       # Install Docker client in CircleCI container (if deploying Docker images)
       - setup_remote_docker:
@@ -36,13 +36,13 @@ jobs:
             echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
             docker-compose -f docker-compose.yml push
 
-      # # Deploy to GCP (adjust deployment steps as per your setup)
-      # - run:
-      #     name: Deploy to GCP
-      #     command: |
-      #       gcloud auth activate-service-account --key-file=gcp-key.json
-      #       gcloud config set project your-gcp-project-id
-      #       gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
+      # Deploy to GCP (adjust deployment steps as per your setup)
+      - run:
+          name: Deploy to GCP
+          command: |
+            gcloud auth activate-service-account --key-file=gcp-key.json
+            gcloud config set project your-gcp-project-id
+            gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
 
 workflows:
   version: 2
