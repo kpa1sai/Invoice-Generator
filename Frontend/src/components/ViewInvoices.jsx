@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -13,63 +12,46 @@ function ViewInvoices() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-<<<<<<< HEAD
-      .get("http://127.0.0.1:8000/api/invoice-items/")
-      .then((response) => {
-        const finalInvoices = response.data.filter((invoice) => !invoice.isDraft);
-        const drafts = response.data.filter((invoice) => invoice.isDraft);
-        setInvoices(finalInvoices);
-        setDraftInvoices(drafts);
-      })
-      .catch((error) => console.error("Error fetching invoices:", error));
-=======
-      .get('http://localhost:8000/api/invoices')
-      .then((response) => setInvoices(response.data))
-      .catch((error) => console.error('Error fetching invoices:', error));
->>>>>>> origin/main
+    const storedInvoices = JSON.parse(localStorage.getItem("invoices")) || [];
+    const storedDrafts = JSON.parse(localStorage.getItem("drafts")) || [];
+    setInvoices(storedInvoices);
+    setDraftInvoices(storedDrafts);
   }, []);
 
-  const handleDelete = (id) => {
-    axios
-<<<<<<< HEAD
-      .delete(`http://127.0.0.1:8000/api/invoices/${id}`)
-=======
-      .delete(`http://localhost:8000/api/invoices/${id}`)
->>>>>>> origin/main
-      .then(() => {
-        setInvoices(invoices.filter((invoice) => invoice.id !== id));
-        setDraftInvoices(draftInvoices.filter((invoice) => invoice.id !== id));
-      })
-      .catch((error) => console.error('Error deleting invoice:', error));
+  const handleDelete = (id, isDraft) => {
+    const key = isDraft ? "drafts" : "invoices";
+    const items = JSON.parse(localStorage.getItem(key)) || [];
+    const updatedItems = items.filter((item) => item.invoiceNumber !== id);
+    localStorage.setItem(key, JSON.stringify(updatedItems));
+    if (isDraft) {
+      setDraftInvoices(updatedItems);
+    } else {
+      setInvoices(updatedItems);
+    }
   };
 
   const handleEdit = (invoice) => {
-<<<<<<< HEAD
-    navigate("/create-invoice", { state: { invoice } });
+    navigate('/dashboard/create-invoice', { state: { invoice } });
   };
 
-  const getTileClassName = ({ date, view }) => {
-    if (view === "month") {
-      const dateStr = date.toISOString().split("T")[0];
-      const invoiceDates = invoices.map((invoice) => invoice.invoiceDate.split("T")[0]);
-      const draftDates = draftInvoices.map((invoice) => invoice.invoiceDate.split("T")[0]);
-      const allDates = [...invoiceDates, ...draftDates];
-      if (allDates.includes(dateStr)) {
-        return "react-calendar__tile--highlight";
-=======
-    navigate('/dashboard/create-invoice', { state: { invoice } });
+  const handleDownload = (invoice) => {
+    // Logic to download the invoice
+    alert(`Downloading invoice #${invoice.invoiceNumber}`);
+  };
+
+  const handleEmail = (invoice) => {
+    // Logic to email the invoice
+    alert(`Emailing invoice #${invoice.invoiceNumber}`);
   };
 
   const getTileClassName = ({ date, view }) => {
     if (view === 'month') {
       const dateStr = date.toISOString().split('T')[0];
-      const invoiceDates = invoices.map(
-        (invoice) => invoice.date.split('T')[0]
-      );
-      if (invoiceDates.includes(dateStr)) {
+      const invoiceDates = invoices.map(invoice => invoice.invoiceDate.split('T')[0]);
+      const draftDates = draftInvoices.map(invoice => invoice.invoiceDate.split('T')[0]);
+      const allDates = [...invoiceDates, ...draftDates];
+      if (allDates.includes(dateStr)) {
         return 'react-calendar__tile--highlight';
->>>>>>> origin/main
       }
     }
     return null;
@@ -80,124 +62,110 @@ function ViewInvoices() {
   };
 
   const filteredInvoices = invoices.filter(
-<<<<<<< HEAD
-    (invoice) =>
-      (!selectedDate || invoice.invoiceDate.split("T")[0] === selectedDate) &&
-      (invoice.invoiceNumber.includes(searchQuery) ||
-        invoice.clientName.includes(searchQuery))
+    (invoice) => 
+      (selectedDate === null || invoice.invoiceDate.split('T')[0] === selectedDate) &&
+      (invoice.invoiceNumber.includes(searchQuery) || invoice.clientName.includes(searchQuery))
   );
 
   const filteredDraftInvoices = draftInvoices.filter(
-    (invoice) =>
-      (!selectedDate || invoice.invoiceDate.split("T")[0] === selectedDate) &&
-      (invoice.invoiceNumber.includes(searchQuery) ||
-        invoice.clientName.includes(searchQuery))
-=======
-    (invoice) => invoice.date.split('T')[0] === selectedDate
->>>>>>> origin/main
+    (invoice) => 
+      (selectedDate === null || invoice.invoiceDate.split('T')[0] === selectedDate) &&
+      (invoice.invoiceNumber.includes(searchQuery) || invoice.clientName.includes(searchQuery))
   );
 
   return (
     <div className='view-invoices content'>
       <h2>Invoices</h2>
-<<<<<<< HEAD
-      <div className="invoice-container">
-        <div className="invoice-list">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search invoices..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <h3>Invoices for {selectedDate || "All Dates"}</h3>
-          {filteredInvoices.length === 0 && filteredDraftInvoices.length === 0 ? (
-=======
-      <div className='calendar-container'>
-        <Calendar
-          onClickDay={handleDateClick}
-          tileClassName={getTileClassName}
-        />
-      </div>
-      {selectedDate && (
+      <div className='invoice-calendar-container'>
         <div className='invoice-list'>
-          <h3>Invoices for {selectedDate}</h3>
-          {filteredInvoices.length === 0 ? (
->>>>>>> origin/main
-            <p>No Invoices Available</p>
-          ) : (
-            <>
-              <h4>Final Invoices</h4>
-              {filteredInvoices.length === 0 ? (
-                <p>No Final Invoices Available</p>
+          <input
+            type="text"
+            placeholder="Search invoices..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {selectedDate && (
+            <div>
+              <h3>Invoices for {selectedDate}</h3>
+              {filteredInvoices.length === 0 && filteredDraftInvoices.length === 0 ? (
+                <p>No Invoices Available</p>
               ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Invoice #</th>
-                      <th>Date</th>
-                      <th>Due Date</th>
-                      <th>Client</th>
-                      <th>Amount</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredInvoices.map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td>{invoice.invoiceNumber}</td>
-                        <td>{invoice.invoiceDate}</td>
-                        <td>{invoice.dueDate}</td>
-                        <td>{invoice.clientName}</td>
-                        <td>{invoice.amount}</td>
-                        <td>
-                          <button onClick={() => handleEdit(invoice)}>Edit</button>
-                          <button onClick={() => handleDelete(invoice.id)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                <>
+                  <h4>Final Invoices</h4>
+                  {filteredInvoices.length === 0 ? (
+                    <p>No Final Invoices Available</p>
+                  ) : (
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Invoice #</th>
+                          <th>Date</th>
+                          <th>Due Date</th>
+                          <th>Client</th>
+                          <th>Amount</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredInvoices.map((invoice) => (
+                          <tr key={invoice.invoiceNumber}>
+                            <td>{invoice.invoiceNumber}</td>
+                            <td>{invoice.invoiceDate}</td>
+                            <td>{invoice.dueDate}</td>
+                            <td>{invoice.clientName}</td>
+                            <td>{invoice.amount}</td>
+                            <td>
+                              <button className="btn btn-download" onClick={() => handleDownload(invoice)}>Download</button>
+                              <button className="btn btn-email" onClick={() => handleEmail(invoice)}>Email</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
 
-              <h4>Draft Invoices</h4>
-              {filteredDraftInvoices.length === 0 ? (
-                <p>No Draft Invoices Available</p>
-              ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Invoice #</th>
-                      <th>Date</th>
-                      <th>Due Date</th>
-                      <th>Client</th>
-                      <th>Amount</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDraftInvoices.map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td>{invoice.invoiceNumber}</td>
-                        <td>{invoice.invoiceDate}</td>
-                        <td>{invoice.dueDate}</td>
-                        <td>{invoice.clientName}</td>
-                        <td>{invoice.amount}</td>
-                        <td>
-                          <button onClick={() => handleEdit(invoice)}>Edit</button>
-                          <button onClick={() => handleDelete(invoice.id)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  <h4>Draft Invoices</h4>
+                  {filteredDraftInvoices.length === 0 ? (
+                    <p>No Draft Invoices Available</p>
+                  ) : (
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Invoice #</th>
+                          <th>Date</th>
+                          <th>Due Date</th>
+                          <th>Client</th>
+                          <th>Amount</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDraftInvoices.map((invoice) => (
+                          <tr key={invoice.invoiceNumber}>
+                            <td>{invoice.invoiceNumber}</td>
+                            <td>{invoice.invoiceDate}</td>
+                            <td>{invoice.dueDate}</td>
+                            <td>{invoice.clientName}</td>
+                            <td>{invoice.amount}</td>
+                            <td>
+                              <button className="btn btn-edit" onClick={() => handleEdit(invoice)}>Edit</button>
+                              <button className="btn btn-delete" onClick={() => handleDelete(invoice.invoiceNumber, true)}>Delete</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </>
               )}
-            </>
+            </div>
           )}
         </div>
-        <div className="calendar-container">
-          <Calendar onClickDay={handleDateClick} tileClassName={getTileClassName} />
+        <div className='calendar-container'>
+          <Calendar
+            onClickDay={handleDateClick}
+            tileClassName={getTileClassName}
+          />
         </div>
       </div>
     </div>
