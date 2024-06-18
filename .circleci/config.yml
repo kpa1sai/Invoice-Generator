@@ -11,7 +11,7 @@ jobs:
       - run:
           name: Ensure wait-for-db.sh is executable
           command: |
-            chmod +x wait-for-db.sh
+            chmod +x Backend/wait-for-it.sh
 
       - run:
           name: Wait for MySQL to be healthy
