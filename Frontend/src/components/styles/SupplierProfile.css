@@ -1,66 +1,103 @@
+/* Container */
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f2f5;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+/* Form Wrapper */
 .form-wrapper {
-  background-color: #fff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-}
-
-h2 {
-  margin-bottom: 20px;
-  text-align: center;
-  color: #333;
-}
-
+/* Form Group */
 .form-group {
-  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-label {
+/* Form Labels */
+.form-group label {
+  flex: 1;
+  margin-right: 20px;
   font-weight: bold;
-  margin-bottom: 5px;
-  display: block;
   color: #333;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
+/* Form Inputs and Selects */
+.form-group input,
+.form-group select {
+  flex: 2;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+  border-radius: 6px;
+  background-color: #fff;
+  transition: border-color 0.3s;
 }
 
+/* Input Focus */
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Buttons */
 button {
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
+  padding: 12px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background-color 0.3s;
+  margin-right: 10px;
 }
 
 button:hover {
   background-color: #0056b3;
 }
 
+/* Green Button */
+button[type='button'] {
+  background-color: #28a745;
+}
+
+button[type='button']:hover {
+  background-color: #218838;
+}
+
+/* Error Message */
 .error {
-  color: red;
+  color: #e74c3c;
   margin-top: 10px;
-  text-align: center;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-group label {
+    margin-bottom: 10px;
+  }
+
+  .form-group input,
+  .form-group select {
+    flex: 1;
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 10px;
+  }
 }
