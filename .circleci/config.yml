@@ -21,6 +21,7 @@ jobs:
       - run:
           name: Apply init.sql
           command: |
+            Backend/generate-init-sql.sh
             docker-compose exec -T db mysql -u$MYSQL_ROOT_USER -p$MYSQL_ROOT_PASSWORD < init.sql
 
       - run:
