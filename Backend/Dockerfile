@@ -9,8 +9,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     libmysqlclient-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin
+    # Remove any problematic APT post-invoke scripts
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY backend/requirements.txt .
