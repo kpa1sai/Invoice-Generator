@@ -6,8 +6,7 @@ WORKDIR /app
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev
 
 # Install Python dependencies
 COPY requirements.txt .
