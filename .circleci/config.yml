@@ -8,6 +8,10 @@ jobs:
     steps:
       - checkout
 
+       - run:
+          name: Wait for MySQL to be healthy
+          command: docker-compose -f docker-compose.yml up -d db && docker-compose -f docker-compose.yml run backend sh -c './wait-for-it.sh db:3306 -- echo "Database is up"'
+
       - run:
           name: List project files
           command: ls -la /home/circleci/project/Backend
@@ -21,13 +25,13 @@ jobs:
           name: Install dependencies and run tests
           command: |
             docker-compose -f docker-compose.yml build backend
-            docker-compose -f docker-compose.yml run backend python manage.py test  # Replace with your test command
+            docker-compose -f docker-compose.yml run backend
 
       # Build frontend (adjust paths and commands as per your project structure)
-      - run:
-          name: Build frontend
-          command: |
-            docker-compose -f docker-compose.yml build frontend
+      # - run:
+      #     name: Build frontend
+      #     command: |
+      #       docker-compose -f docker-compose.yml build frontend
 
       # Push frontend and backend images to Docker Hub or GCR (Google Container Registry)
       - run:
@@ -37,12 +41,12 @@ jobs:
             docker-compose -f docker-compose.yml push
 
       # Deploy to GCP (adjust deployment steps as per your setup)
-      - run:
-          name: Deploy to GCP
-          command: |
-            gcloud auth activate-service-account --key-file=gcp-key.json
-            gcloud config set project your-gcp-project-id
-            gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
+      # - run:
+      #     name: Deploy to GCP
+      #     command: |
+      #       gcloud auth activate-service-account --key-file=gcp-key.json
+      #       gcloud config set project your-gcp-project-id
+      #       gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
 
 workflows:
   version: 2

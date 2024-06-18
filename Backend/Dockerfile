@@ -19,6 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
 COPY . .
+RUN ls -la /app
+COPY wait-for-it.sh /wait-for-it.sh
 
 RUN ls -la /app
 
