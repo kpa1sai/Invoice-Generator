@@ -18,9 +18,9 @@ jobs:
           command: docker-compose -f docker-compose.yml up -d db && docker-compose -f docker-compose.yml run backend sh -c './wait-for-it.sh db:3306 -- echo "Database is up"'
 
       - run:
-          name: Setup Test Database
+          name: Setup Test Database Permissions
           command: |
-            docker-compose exec db sh -c "mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e 'CREATE DATABASE IF NOT EXISTS test_$MYSQL_DATABASE;'"
+            docker exec -i $(docker-compose ps -q db) mysql -u$MYSQL_USER -p$MYSQL_PASSWORD -e "FLUSH PRIVILEGES;"
 
       - run:
           name: List project files
