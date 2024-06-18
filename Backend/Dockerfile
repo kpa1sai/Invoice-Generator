@@ -4,8 +4,12 @@ FROM python:3.9
 # Set the working directory in the container
 WORKDIR /app
 
+RUN sudo apt-get clean
+RUN sudo rm -rf /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin
+
+
 # Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
