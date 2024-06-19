@@ -1,16 +1,23 @@
-import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import "./styles/CreateInvoice.css";
 
 function CreateInvoice() {
-  const [invoice, setInvoice] = useState({
+  const location = useLocation();
+  const [invoice, setInvoice] = useState(location.state?.invoice || {
     invoiceNumber: "",
     invoiceDate: "",
     dueDate: "",
     clientName: "",
-    items: [{ name: "", description: "", quantity: 1, rate: 0 }],
+    items: [{ item_name: "", item_description: "", quantity: 1, price: 0, tax_rate: 0 }],
     logo: null,
   });
+  const [clients, setClients] = useState([]);
+
+  useEffect(() => {
+    const loadedClients = JSON.parse(localStorage.getItem("clients")) || [];
+    setClients(loadedClients);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,54 +26,52 @@ function CreateInvoice() {
 
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
-    const items = [...invoice.items];
-    items[index][name] = value;
-    setInvoice((prevInvoice) => ({ ...prevInvoice, items }));
+    const newItems = [...invoice.items];
+    newItems[index][name] = value;
+    setInvoice((prevInvoice) => ({ ...prevInvoice, items: newItems }));
   };
 
-  const handleLogoChange = (e) => {
-    setInvoice((prevInvoice) => ({ ...prevInvoice, logo: e.target.files[0] }));
+  const handleAddItem = () => {
+    setInvoice((prevInvoice) => ({
+      ...prevInvoice,
+      items: [...prevInvoice.items, { item_name: "", item_description: "", quantity: 1, price: 0, tax_rate: 0 }],
+    }));
   };
 
-  //   const handleAddItem = () => {
-  //     setInvoice((prevInvoice) => ({
-  //       ...prevInvoice,
-  //       items: [
-  //         ...prevInvoice.items,
-  //         { name: "", description: "", quantity: 1, rate: 0 },
-  //       ],
-  //     }));
-  //   };
+  const handleRemoveItem = (index) => {
+    const newItems = invoice.items.filter((item, i) => i !== index);
+    setInvoice((prevInvoice) => ({ ...prevInvoice, items: newItems }));
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("invoiceNumber", invoice.invoiceNumber);
-    formData.append("invoiceDate", invoice.invoiceDate);
-    formData.append("dueDate", invoice.dueDate);
-    formData.append("clientName", invoice.clientName);
-    formData.append("logo", invoice.logo);
-    formData.append("items", JSON.stringify(invoice.items));
+    const storedInvoices = JSON.parse(localStorage.getItem("invoices")) || [];
+    const newInvoices = [...storedInvoices, { ...invoice, isDraft: false }];
+    localStorage.setItem("invoices", JSON.stringify(newInvoices));
+    alert("Invoice saved successfully");
+    setInvoice({
+      invoiceNumber: "",
+      invoiceDate: "",
+      dueDate: "",
+      clientName: "",
+      items: [{ item_name: "", item_description: "", quantity: 1, price: 0, tax_rate: 0 }],
+      logo: null,
+    });
+  };
 
-    try {
-      await axios.post("http://localhost:5000/api/invoices", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      alert("Invoice saved successfully");
-      // Reset form
-      setInvoice({
-        invoiceNumber: "",
-        invoiceDate: "",
-        dueDate: "",
-        clientName: "",
-        items: [{ name: "", description: "", quantity: 1, rate: 0 }],
-        logo: null,
-      });
-    } catch (error) {
-      console.error("Error saving invoice:", error);
-    }
+  const handleSaveDraft = () => {
+    const storedDrafts = JSON.parse(localStorage.getItem("drafts")) || [];
+    const newDrafts = [...storedDrafts, { ...invoice, isDraft: true }];
+    localStorage.setItem("drafts", JSON.stringify(newDrafts));
+    alert("Draft saved successfully");
+    setInvoice({
+      invoiceNumber: "",
+      invoiceDate: "",
+      dueDate: "",
+      clientName: "",
+      items: [{ item_name: "", item_description: "", quantity: 1, price: 0, tax_rate: 0 }],
+      logo: null,
+    });
   };
 
   return (
@@ -99,14 +104,19 @@ function CreateInvoice() {
         <div className="form-row">
           <div className="form-group">
             <label>Bill to:</label>
-            <input
-              type="text"
+            <select
               name="clientName"
               value={invoice.clientName}
               onChange={handleChange}
-              placeholder="Who is this invoice for?"
               required
-            />
+            >
+              <option value="">Select a Client</option>
+              {clients.map((client, index) => (
+                <option key={index} value={client.customer_name}>
+                  {client.customer_name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label>Due Date</label>
@@ -119,75 +129,79 @@ function CreateInvoice() {
             />
           </div>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Item</label>
-            <input
-              type="text"
-              name="name"
-              value={invoice.items[0].name}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="Item name"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <input
-              type="text"
-              name="description"
-              value={invoice.items[0].description}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="Description"
-              required
-            />
-          </div>
+
+        <div className="items-section">
+          <h3>Items</h3>
+          {invoice.items.map((item, index) => (
+            <div key={index} className="item-row">
+              <div className="form-group">
+                <label>Item Name</label>
+                <input
+                  type="text"
+                  name="item_name"
+                  value={item.item_name}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="Item Name"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Item Description</label>
+                <input
+                  type="text"
+                  name="item_description"
+                  value={item.item_description}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="Item Description"
+                />
+              </div>
+              <div className="form-group">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={item.quantity}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="Quantity"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Price</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={item.price}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="Price"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Tax Rate (%)</label>
+                <input
+                  type="number"
+                  name="tax_rate"
+                  value={item.tax_rate}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="Tax Rate"
+                  required
+                />
+              </div>
+              <button type="button" onClick={() => handleRemoveItem(index)}>
+                Remove Item
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={handleAddItem}>
+            Add Item
+          </button>
         </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={invoice.items[0].quantity}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="1"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Rate</label>
-            <input
-              type="number"
-              name="rate"
-              value={invoice.items[0].rate}
-              onChange={(e) => handleItemChange(0, e)}
-              placeholder="0.00"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Amount</label>
-            <input
-              type="number"
-              value={(
-                invoice.items[0].quantity * invoice.items[0].rate
-              ).toFixed(2)}
-              placeholder="0.00"
-              disabled
-            />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Upload Logo</label>
-          <input
-            type="file"
-            name="logo"
-            onChange={handleLogoChange}
-            accept="image/*"
-          />
-        </div>
+
         <button type="submit">Generate Invoice</button>
+        <button type="button" onClick={handleSaveDraft}>
+          Save as Draft
+        </button>
       </form>
     </div>
   );

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddressForm from './AddressForm';
@@ -9,11 +8,13 @@ function SupplierProfile() {
     supplierName: '',
     supplierEmail: '',
     logo: null,
-    addressId: ''
+    addressId: '',
+    customerName: '',
+    customerType: 'Individual',
+    createdAt: new Date().toISOString().slice(0, 10), // default to today's date
   });
 
   const [showAddressForm, setShowAddressForm] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -30,27 +31,16 @@ function SupplierProfile() {
     setShowAddressForm(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = {
-      supplier_name: profile.supplierName,
-      username: profile.supplierEmail,
-      addressId: profile.addressId,
-      logo: profile.logo
-    };
 
-    try {
-      await axios.post('http://localhost:8000/api/suppliers', formData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      alert('Profile created successfully');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      setError('Failed to create profile');
-    }
+    const storedProfiles = JSON.parse(localStorage.getItem("suppliers")) || [];
+    const newProfile = { ...profile, id: Date.now() }; // Assign a unique ID based on the current timestamp
+    const newProfiles = [...storedProfiles, newProfile];
+    localStorage.setItem("suppliers", JSON.stringify(newProfiles));
+
+    alert('Profile created successfully');
+    navigate('/dashboard');
   };
 
   return (
@@ -79,6 +69,37 @@ function SupplierProfile() {
             />
           </div>
           <div className='form-group'>
+            <label>Customer Name:</label>
+            <input
+              type='text'
+              name='customerName'
+              value={profile.customerName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label>Customer Type:</label>
+            <select
+              name='customerType'
+              value={profile.customerType}
+              onChange={handleChange}
+            >
+              <option value='Individual'>Individual</option>
+              <option value='Business'>Business</option>
+            </select>
+          </div>
+          <div className='form-group'>
+            <label>Created At:</label>
+            <input
+              type='date'
+              name='createdAt'
+              value={profile.createdAt}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className='form-group'>
             <label>Address:</label>
             <input
               type='text'
@@ -101,7 +122,6 @@ function SupplierProfile() {
             />
           </div>
           <button type='submit'>Create Profile</button>
-          {error && <p className='error'>{error}</p>}
         </form>
         {showAddressForm && (
           <AddressForm

@@ -51,9 +51,10 @@ Run these commands in the backend terminal:
 
 ```
 python -m venv env
-env/Scripts/activate
+env/Scripts/activate (for windows) | source env/bin/activate (For Mac OS)
 pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
+

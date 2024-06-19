@@ -1,92 +1,96 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import AddressForm from './AddressForm';
-import './styles/AddClient.css';
+import React, { useState } from "react";
+import "./styles/AddClient.css";
 
-function AddClient() {
+function AddClient({ addClient }) {
   const [client, setClient] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    addressId: ''
+    customer_name: "",
+    contact_person: "",
+    email: "",
+    phone: "",
+    address: "",
   });
-
-  const [showAddressForm, setShowAddressForm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setClient((prevClient) => ({ ...prevClient, [name]: value }));
   };
 
-  const handleAddressSave = (address) => {
-    setClient((prevClient) => ({ ...prevClient, addressId: address.id }));
-    setShowAddressForm(false);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post('http://localhost:5000/api/clients', client, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then((response) => {
-        alert('Client added successfully');
-        setClient({
-          name: '',
-          email: '',
-          phone: '',
-          addressId: ''
-        });
-      })
-      .catch((error) => console.error('Error adding client:', error));
+    const storedClients = JSON.parse(localStorage.getItem("clients")) || [];
+    const newClients = [...storedClients, client];
+    localStorage.setItem("clients", JSON.stringify(newClients));
+    alert("Client saved successfully");
+    addClient(client);
+    setClient({
+      customer_name: "",
+      contact_person: "",
+      email: "",
+      phone: "",
+      address: "",
+    });
   };
 
   return (
-    <div className='client-form content'>
+    <div className="client-form content">
       <h2>Add Client</h2>
       <form onSubmit={handleSubmit}>
-        <div className='form-group'>
-          <label>Name</label>
+        <div className="form-group">
+          <label>Customer Name</label>
           <input
-            type='text'
-            name='name'
-            value={client.name}
+            type="text"
+            name="customer_name"
+            value={client.customer_name}
             onChange={handleChange}
-            placeholder='Client Name'
+            placeholder="Customer Name"
             required
           />
         </div>
-        <div className='form-group'>
-          <label>Customer Type</label>
+        <div className="form-group">
+          <label>Contact Person</label>
           <input
-            type='text'
-            name='ctype'
-            value={client.ctype}
+            type="text"
+            name="contact_person"
+            value={client.contact_person}
             onChange={handleChange}
-            placeholder='Individual / Business'
+            placeholder="Contact Person"
             required
           />
         </div>
-        <div className='form-group'>
+        <div className="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            value={client.email}
+            onChange={handleChange}
+            placeholder="Email"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={client.phone}
+            onChange={handleChange}
+            placeholder="Phone"
+            required
+          />
+        </div>
+        <div className="form-group">
           <label>Address</label>
-          <input
-            type='text'
-            name='addressId'
-            value={client.addressId}
+          <textarea
+            name="address"
+            value={client.address}
             onChange={handleChange}
-            readOnly
-          />
-          <button type='button' onClick={() => setShowAddressForm(true)}>
-            {client.addressId ? 'Update Address' : 'Add Address'}
-          </button>
+            placeholder="Address"
+            required
+          ></textarea>
         </div>
-        <button type='submit'>Add Client</button>
+        <button type="submit">Save Client</button>
       </form>
-      {showAddressForm && (
-        <AddressForm addressId={client.addressId} onSave={handleAddressSave} />
-      )}
     </div>
   );
 }
