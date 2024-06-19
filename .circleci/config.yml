@@ -99,9 +99,10 @@ workflows:
   build-test:
     jobs:
       - build
+
   build-publish:
     jobs:
-      - push-docker-images
-        filters:
-          branches:
-            only: main
+      - push-docker-images:
+          filters:
+            branches:
+              only: main
