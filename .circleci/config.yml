@@ -45,6 +45,46 @@ jobs:
             docker-compose -f docker-compose.yml build backend
             docker-compose -f docker-compose.yml run backend
 
+  push-docker-images:
+    docker:
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+
+      - run:
+          name: List project files
+          command: |
+            ls -la /home/circleci/project/Backend
+            ls -la /home/circleci/project/Frontend
+
+      - setup_remote_docker:
+          version: default
+
+      - run:
+          name: Build backend Docker image
+          command: |
+            docker-compose -f docker-compose.yml build backend
+            docker tag ${DOCKER_HUB_REPO_BACKEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
+
+      - run:
+          name: Build frontend Docker image
+          command: |
+            docker-compose -f docker-compose.yml build frontend
+            docker tag ${DOCKER_HUB_REPO_FRONTEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
+
+      - run:
+          name: Push backend Docker image to Docker Hub
+          command: |
+            echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+            docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
+
+      - run:
+          name: Push frontend Docker image to Docker Hub
+          command: |
+            echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+            docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
+
       # Build frontend (adjust paths and commands as per your project structure)
       # - run:
       #     name: Build frontend
@@ -68,6 +108,12 @@ jobs:
 
 workflows:
   version: 2
-  build-deploy:
+  build-test:
     jobs:
       - build
+  build-publish:
+    jobs:
+      - push-docker-images
+        # filters:
+        #   branches:
+        #     only: main
