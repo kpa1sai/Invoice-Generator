@@ -4,41 +4,47 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.9
-
     steps:
       - checkout
 
-      # Install Docker client in CircleCI container (if deploying Docker images)
+      # Setup Remote Docker to enable building Docker images
       - setup_remote_docker:
           version: default
 
+      # Ensure wait-for-db.sh and generate-init-sql.sh are executable
       - run:
-          name: Ensure wait-for-db.sh is executable and User permissions script
+          name: Make scripts executable
           command: |
             chmod +x Backend/generate-init-sql.sh
             chmod +x Backend/wait-for-it.sh
 
+      # Wait for MySQL to be healthy
       - run:
           name: Wait for MySQL to be healthy
           command: docker-compose -f docker-compose.yml up -d db && docker-compose -f docker-compose.yml run backend sh -c './wait-for-it.sh db:3306 -- echo "Database is up"'
 
+      # Apply init.sql script
       - run:
           name: Apply init.sql
           command: |
             Backend/generate-init-sql.sh
             docker-compose exec -T db mysql -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD} < init.sql
 
+      # Verify Database and Privileges
       - run:
           name: Verify Database and Privileges
           command: |
             docker-compose exec db mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SHOW DATABASES;"
             docker-compose exec db mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SHOW GRANTS FOR '${MYSQL_USER}'@'%';"
 
+      # List project files for debugging purposes
       - run:
           name: List project files
-          command: ls -la /home/circleci/project/Backend
+          command: |
+            ls -la /home/circleci/project/Backend
+            ls -la /home/circleci/project/Frontend
 
-      # Build and test backend (adjust paths and commands as per your project structure)
+      # Build and test backend
       - run:
           name: Install dependencies and run tests
           command: |
@@ -48,63 +54,45 @@ jobs:
   push-docker-images:
     docker:
       - image: circleci/python:3.9
-
     steps:
       - checkout
+      - setup_remote_docker:
+          version: default
 
+      # List project files for debugging purposes
       - run:
           name: List project files
           command: |
             ls -la /home/circleci/project/Backend
             ls -la /home/circleci/project/Frontend
 
-      - setup_remote_docker:
-          version: default
-
+      # Build backend Docker image
       - run:
           name: Build backend Docker image
           command: |
             docker-compose -f docker-compose.yml build backend
             docker tag ${DOCKER_HUB_REPO_BACKEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
 
+      # Build frontend Docker image
       - run:
           name: Build frontend Docker image
           command: |
             docker-compose -f docker-compose.yml build frontend
             docker tag ${DOCKER_HUB_REPO_FRONTEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
 
+      # Push backend Docker image to Docker Hub
       - run:
           name: Push backend Docker image to Docker Hub
           command: |
             echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
             docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
 
+      # Push frontend Docker image to Docker Hub
       - run:
           name: Push frontend Docker image to Docker Hub
           command: |
             echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
             docker push ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
-
-      # Build frontend (adjust paths and commands as per your project structure)
-      # - run:
-      #     name: Build frontend
-      #     command: |
-      #       docker-compose -f docker-compose.yml build frontend
-
-      # Push frontend and backend images to Docker Hub or GCR (Google Container Registry)
-      - run:
-          name: Push Docker images
-          command: |
-            echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
-            docker-compose -f docker-compose.yml push
-
-      # Deploy to GCP (adjust deployment steps as per your setup)
-      # - run:
-      #     name: Deploy to GCP
-      #     command: |
-      #       gcloud auth activate-service-account --key-file=gcp-key.json
-      #       gcloud config set project your-gcp-project-id
-      #       gcloud compute ssh your-vm-instance --command "docker-compose -f /path/to/your/docker-compose.yml up -d"
 
 workflows:
   version: 2
@@ -114,6 +102,7 @@ workflows:
   build-publish:
     jobs:
       - push-docker-images
+        # Uncomment the following filter if you only want to publish on specific branches
         # filters:
         #   branches:
         #     only: main
