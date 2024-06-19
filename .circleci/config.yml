@@ -102,7 +102,6 @@ workflows:
   build-publish:
     jobs:
       - push-docker-images
-        # Uncomment the following filter if you only want to publish on specific branches
-        # filters:
-        #   branches:
-        #     only: main
+        filters:
+          branches:
+            only: main
