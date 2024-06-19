@@ -71,14 +71,14 @@ jobs:
           name: Build backend Docker image
           command: |
             docker-compose -f docker-compose.yml build backend
-            docker tag ${DOCKER_HUB_REPO_BACKEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
+            docker tag project_backend:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_BACKEND}:latest
 
       # Build frontend Docker image
       - run:
           name: Build frontend Docker image
           command: |
             docker-compose -f docker-compose.yml build frontend
-            docker tag ${DOCKER_HUB_REPO_FRONTEND}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
+            docker tag project_frontend:latest ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO_FRONTEND}:latest
 
       # Push backend Docker image to Docker Hub
       - run:
